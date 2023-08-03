@@ -4,7 +4,11 @@
     <div class="graph-container" id="graph-container">
       <div id="graph"></div>
       <div class="graph-component">
-        <Panel :selectedData="selectedData" :selectedType="selectedType" />
+        <Panel
+          :selectedData="selectedData"
+          :selectedType="selectedType"
+          @close="handlePanelClose"
+        />
       </div>
     </div>
   </div>
@@ -23,6 +27,7 @@ const selectedData = ref();
 const selectedType = ref();
 
 graphDataStore.$subscribe((mutation) => {
+  console.log(mutation);
   if (!Array.isArray(mutation.events)) {
     const newValue = mutation.events.newValue;
     graph.data(newValue);
@@ -59,6 +64,15 @@ const initGraphEvent = () => {
     selectedType.value = "edge";
     selectedData.value = edgeData;
   });
+
+  graph.on("canvas:click", (event) => {
+    selectedType.value = null;
+    selectedData.value = null;
+  });
+};
+
+const handlePanelClose = () => {
+  selectedType.value = "";
 };
 </script>
 
