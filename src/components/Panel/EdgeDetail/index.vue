@@ -1,5 +1,7 @@
 <template>
-  <div class="body">{{ props.selectedData }}</div>
+  <div class="body">
+    {{ props.selectedData }}
+  </div>
 </template>
 
 <script setup lang="ts">
