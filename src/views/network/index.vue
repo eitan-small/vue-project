@@ -43,23 +43,14 @@ const initGraph = async () => {
     width: container?.offsetWidth,
     height: container?.offsetHeight,
     fitView: true,
-    // layout: {
-    //   type: "comboCombined",
-    //   center: [0, 0], // 可选，默认为图的中心
-    //   outerLayout: new G6.Layout["gForce"]({
-    //     preventOverlap: true,
-    //     minMovement: 0.1,
-    //   }),
-    // },
-    // 必须将 groupByTypes 设置为 false，带有 combo 的图中元素的视觉层级才能合理
     groupByTypes: false,
     defaultCombo: {
-      type: "rect", // Combo 类型
-      // ... 其他配置
+      type: "rect",
     },
-    // defaultEdge: {
-    //   type: "polyline",
-    // },
+    defaultNode: {
+      type: "image",
+      size: 32,
+    },
     modes: {
       default: [
         "drag-canvas",
@@ -70,13 +61,11 @@ const initGraph = async () => {
           type: "drag-node",
           onlyChangeComboSize: true,
         },
-      ], // 允许拖拽画布、放缩画布、拖拽节点
+      ],
     },
   });
   graphDataStore.graph = graph;
   await graphDataStore.fetchData();
-  graph.data(graphDataStore.data);
-  graph.render();
 };
 
 const initGraphEvent = () => {
