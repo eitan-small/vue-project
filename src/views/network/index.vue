@@ -37,6 +37,39 @@ onMounted(() => {
 });
 
 const initGraph = async () => {
+  G6.registerNode(
+    "custom",
+    {
+      afterDraw(cfg, group) {
+        const size = cfg.size;
+        const width = size - 16;
+        const height = size - 16;
+        // 添加图片
+        const image = group.addShape("image", {
+          attrs: {
+            x: -width / 2,
+            y: -height / 2,
+            width: width,
+            height: height,
+            img: cfg.img,
+          },
+          // must be assigned in G6 3.3 and later versions. it can be any value you want
+          name: "image-shape",
+        });
+      },
+      // 自定义锚点位置
+      getAnchorPoints() {
+        return [
+          [0, 0.5],
+          [1, 0.5],
+          [0.5, 0],
+          [0.5, 1],
+        ];
+      },
+    },
+    "circle",
+  );
+
   const container = document.getElementById("graph-container");
   graph = new G6.Graph({
     container: "graph",
@@ -48,8 +81,15 @@ const initGraph = async () => {
       type: "rect",
     },
     defaultNode: {
-      type: "image",
-      size: 32,
+      type: "custom",
+      size: 36,
+      labelCfg: {
+        position: "bottom",
+      },
+    },
+    defaultEdge: {
+      type: "polyline",
+      // 其他配置
     },
     modes: {
       default: [
@@ -73,17 +113,29 @@ const initGraphEvent = () => {
     const nodeData: any = event.item?.getModel();
     selectedType.value = "node";
     selectedData.value = nodeData;
+    graph.setItemState(
+      event.item,
+      "selected",
+      !event.item.hasState("selected"),
+    );
   });
 
   graph.on("edge:click", (event) => {
     const edgeData: any = event.item?.getModel();
     selectedType.value = "edge";
     selectedData.value = edgeData;
+    graph.setItemState(event.item, "selected", true);
   });
 
-  graph.on("canvas:click", () => {
+  graph.on("edge:dblclick", () => {
     selectedType.value = null;
     selectedData.value = null;
+    graph.getNodes().forEach(function (node) {
+      graph.clearItemStates(node);
+    });
+    graph.getEdges().forEach(function (edge) {
+      graph.clearItemStates(edge);
+    });
   });
 };
 
