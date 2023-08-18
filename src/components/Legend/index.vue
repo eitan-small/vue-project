@@ -37,7 +37,7 @@ const props = defineProps({
 .legend-item {
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
   min-width: 500px;
 }
 
