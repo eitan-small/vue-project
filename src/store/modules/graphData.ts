@@ -34,6 +34,12 @@ const useGraphDataStore = defineStore("GraphData", {
       const response = await getNetworkData();
       if (response.status == 200) {
         this.data = response.data;
+        response.data.nodes.forEach((node) => {
+          if (node.x != null) {
+            this.graph.destroyLayout();
+          }
+        });
+
         this.graph.data(this.data);
         this.updateNode();
       } else {

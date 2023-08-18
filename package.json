@@ -17,6 +17,7 @@
     "@antv/g6": "^4.8.20",
     "axios": "^1.4.0",
     "element-plus": "^2.3.8",
+    "html2canvas": "^1.4.1",
     "pinia": "^2.1.4",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"

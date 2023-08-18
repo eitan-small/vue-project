@@ -11,6 +11,7 @@
           :selectedType="selectedType"
           @close="handlePanelClose"
         />
+        <Legend id="legend" :items="legendItems" />
       </div>
     </div>
   </div>
@@ -18,6 +19,7 @@
 
 <script setup lang="ts">
 import Panel from "@/components/Panel/index.vue";
+import Legend from "@/components/Legend/index.vue";
 import ActionBar from "@/components/ActionBar/index.vue";
 import useGraphDataStore from "@/store/modules/graphData";
 import G6 from "@antv/g6";
@@ -29,6 +31,16 @@ const graphDataStore = useGraphDataStore();
 const selectedData = ref();
 const selectedType = ref();
 
+const legendItems = ref([
+  { type: "image", content: "/src/assets/icons/switch.svg", label: "交换机" },
+  { type: "image", content: "/src/assets/icons/router.svg", label: "路由器" },
+  { type: "image", content: "/src/assets/icons/firewall.svg", label: "防火墙" },
+  { type: "image", content: "/src/assets/icons/server.svg", label: "服务器" },
+  { type: "line", color: "#5B8FF9", thickness: 4, label: "万兆光纤链路" },
+  { type: "line", color: "#5B8FF9", thickness: 2, label: "千兆光纤链路" },
+  { type: "line", color: "#bbc52d", thickness: 2, label: "千兆铜缆链路" },
+]);
+
 onMounted(() => {
   nextTick(async () => {
     initGraph();
@@ -37,6 +49,12 @@ onMounted(() => {
 });
 
 const initGraph = async () => {
+  const snapLine = new G6.SnapLine({
+    line: {
+      stroke: "#90c0ff",
+    },
+  });
+
   G6.registerNode(
     "custom",
     {
@@ -76,7 +94,7 @@ const initGraph = async () => {
     width: container?.offsetWidth,
     height: container?.offsetHeight,
     fitView: true,
-    groupByTypes: false,
+    // groupByTypes: false,
     defaultCombo: {
       type: "rect",
     },
@@ -85,10 +103,21 @@ const initGraph = async () => {
       size: 36,
       labelCfg: {
         position: "bottom",
+        style: {
+          fontSize: 6,
+        },
+      },
+    },
+    nodeStateStyles: {
+      related: {
+        stroke: "white",
+        shadowColor: "blue",
+        shadowBlur: 5,
+        lineWidth: 2,
       },
     },
     defaultEdge: {
-      type: "polyline",
+      // type: "polyline",
       // 其他配置
     },
     modes: {
@@ -103,6 +132,19 @@ const initGraph = async () => {
         },
       ],
     },
+    layout: {
+      type: "comboCombined",
+      outerLayout: new G6.Layout["dagre"]({
+        // 该布局的参数
+        nodesep: 30,
+        ranksep: 30,
+      }),
+      innerLayout: new G6.Layout["dagre"]({
+        nodesep: 10,
+        ranksep: 10,
+      }),
+    },
+    plugins: [snapLine],
   });
   graphDataStore.graph = graph;
   await graphDataStore.fetchData();
@@ -113,35 +155,56 @@ const initGraphEvent = () => {
     const nodeData: any = event.item?.getModel();
     selectedType.value = "node";
     selectedData.value = nodeData;
+    clearAllStats();
     graph.setItemState(
       event.item,
       "selected",
       !event.item.hasState("selected"),
     );
+    console.log(event.item.get("id"));
+    event.item.getEdges().forEach((edge) => {
+      graph.setItemState(edge, "selected", true);
+      graph.setItemState(
+        edge.getSource(),
+        "related",
+        edge.getSource().get("id") != event.item.get("id"),
+      );
+      graph.setItemState(
+        edge.getTarget(),
+        "related",
+        edge.getTarget().get("id") != event.item.get("id"),
+      );
+    });
   });
 
   graph.on("edge:click", (event) => {
     const edgeData: any = event.item?.getModel();
     selectedType.value = "edge";
     selectedData.value = edgeData;
+    clearAllStats();
     graph.setItemState(event.item, "selected", true);
-  });
-
-  graph.on("edge:dblclick", () => {
-    selectedType.value = null;
-    selectedData.value = null;
-    graph.getNodes().forEach(function (node) {
-      graph.clearItemStates(node);
-    });
-    graph.getEdges().forEach(function (edge) {
-      graph.clearItemStates(edge);
-    });
+    console.log(event.item);
+    // 关联的两个节点
+    graph.setItemState(event.item.getSource(), "related", true);
+    graph.setItemState(event.item.getTarget(), "related", true);
   });
 };
 
 const handlePanelClose = () => {
   selectedType.value = "";
   console.log(graph.save());
+};
+
+const clearAllStats = () => {
+  graph.setAutoPaint(false);
+  graph.getNodes().forEach(function (node) {
+    graph.clearItemStates(node);
+  });
+  graph.getEdges().forEach(function (edge) {
+    graph.clearItemStates(edge);
+  });
+  graph.paint();
+  graph.setAutoPaint(true);
 };
 </script>
 
