@@ -4,6 +4,7 @@ import request from "@/utils/request";
 enum API {
   NETWORKDATA_URL = "/network/data",
   SAVENETWORKDATA_URL = "/network/saveData",
+  GETDICTIONARYBYtYPE_URL = "/network/dictionary/getByType",
 }
 
 // 对外暴露函数
@@ -11,3 +12,10 @@ export const getNetworkData = () => request.post(API.NETWORKDATA_URL);
 
 export const saveNetworkData = (data: any) =>
   request.post(API.SAVENETWORKDATA_URL, data);
+
+export const getDictionaryByType = (type: string) =>
+  request.get(API.GETDICTIONARYBYtYPE_URL, {
+    params: {
+      type: type,
+    },
+  });

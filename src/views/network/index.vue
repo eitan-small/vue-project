@@ -36,10 +36,26 @@ const legendItems = ref([
   { type: "image", content: "/src/assets/icons/router.svg", label: "路由器" },
   { type: "image", content: "/src/assets/icons/firewall.svg", label: "防火墙" },
   { type: "image", content: "/src/assets/icons/server.svg", label: "服务器" },
-  { type: "line", color: "#5B8FF9", thickness: 4, label: "万兆光纤链路" },
-  { type: "line", color: "#5B8FF9", thickness: 2, label: "千兆光纤链路" },
-  { type: "line", color: "#bbc52d", thickness: 2, label: "千兆铜缆链路" },
+  { type: "line", color: "#5B8FF9", thickness: 3, label: "万兆光纤链路" },
+  { type: "line", color: "#5B8FF9", thickness: 1, label: "千兆光纤链路" },
+  { type: "line", color: "#FFD700", thickness: 1, label: "千兆铜缆链路" },
 ]);
+
+const edgeStyles = {
+  万兆光纤链路: {
+    lineWidth: 3,
+    stroke: "#5B8FF9",
+  },
+  千兆光纤链路: {
+    lineWidth: 1,
+    stroke: "#5B8FF9",
+  },
+  千兆铜缆链路: {
+    lineWidth: 1,
+    stroke: "#FFD700",
+  },
+  // ...其他类型的样式定义
+};
 
 onMounted(() => {
   nextTick(async () => {
@@ -49,12 +65,14 @@ onMounted(() => {
 });
 
 const initGraph = async () => {
+  // 移动对齐插件
   const snapLine = new G6.SnapLine({
     line: {
       stroke: "#90c0ff",
     },
   });
 
+  // 自定义节点
   G6.registerNode(
     "custom",
     {
@@ -94,7 +112,7 @@ const initGraph = async () => {
     width: container?.offsetWidth,
     height: container?.offsetHeight,
     fitView: true,
-    // groupByTypes: false,
+    groupByTypes: false,
     defaultCombo: {
       type: "rect",
     },
@@ -114,6 +132,21 @@ const initGraph = async () => {
         shadowColor: "blue",
         shadowBlur: 5,
         lineWidth: 2,
+        opacity: 1,
+      },
+      selected: {
+        opacity: 1,
+      },
+      dark: {
+        opacity: 0.5,
+      },
+    },
+    edgeStateStyles: {
+      selected: {
+        opacity: 1,
+      },
+      dark: {
+        opacity: 0.5,
       },
     },
     defaultEdge: {
@@ -124,7 +157,6 @@ const initGraph = async () => {
       default: [
         "drag-canvas",
         "zoom-canvas",
-        "drag-node",
         "drag-combo",
         {
           type: "drag-node",
@@ -147,43 +179,59 @@ const initGraph = async () => {
     plugins: [snapLine],
   });
   graphDataStore.graph = graph;
+
+  graph.edge((edge) => {
+    edge.style = edgeStyles[edge.sourceData.linkType];
+    return edge;
+  });
+
   await graphDataStore.fetchData();
 };
 
 const initGraphEvent = () => {
   graph.on("node:click", (event) => {
+    // 用于传递给 Panel
     const nodeData: any = event.item?.getModel();
     selectedType.value = "node";
     selectedData.value = nodeData;
+
+    // 清除状态
     clearAllStats();
-    graph.setItemState(
-      event.item,
-      "selected",
-      !event.item.hasState("selected"),
-    );
-    console.log(event.item.get("id"));
-    event.item.getEdges().forEach((edge) => {
-      graph.setItemState(edge, "selected", true);
-      graph.setItemState(
-        edge.getSource(),
-        "related",
-        edge.getSource().get("id") != event.item.get("id"),
-      );
-      graph.setItemState(
-        edge.getTarget(),
-        "related",
-        edge.getTarget().get("id") != event.item.get("id"),
-      );
-    });
+    setAllDark();
+    // 设置点击节点为 selected
+    const node = event.item;
+    if (node != null) {
+      graph.setItemState(node, "selected", !node.hasState("selected"));
+      node.toFront();
+      // 设置边和边连接的节点为 related
+      node.getEdges().forEach((edge) => {
+        graph.setItemState(edge, "selected", true);
+        edge.toFront();
+        // 与边连接的源节点
+        const sourceNode = edge.getSource();
+        if (edge.getSource().get("id") == node.get("id")) {
+          graph.setItemState(sourceNode, "related", true);
+          sourceNode.toFront();
+        }
+        // 与边连接的目标节点
+        const targetNode = edge.getTarget();
+        if (edge.getSource().get("id") == node.get("id")) {
+          graph.setItemState(targetNode, "related", true);
+          targetNode.toFront();
+        }
+      });
+    }
   });
 
   graph.on("edge:click", (event) => {
     const edgeData: any = event.item?.getModel();
     selectedType.value = "edge";
     selectedData.value = edgeData;
+
+    // 清除状态
     clearAllStats();
+    setAllDark();
     graph.setItemState(event.item, "selected", true);
-    console.log(event.item);
     // 关联的两个节点
     graph.setItemState(event.item.getSource(), "related", true);
     graph.setItemState(event.item.getTarget(), "related", true);
@@ -192,20 +240,39 @@ const initGraphEvent = () => {
 
 const handlePanelClose = () => {
   selectedType.value = "";
-  console.log(graph.save());
+  clearAllStats();
+  setAllToBack();
 };
 
 const clearAllStats = () => {
-  graph.setAutoPaint(false);
   graph.getNodes().forEach(function (node) {
     graph.clearItemStates(node);
   });
   graph.getEdges().forEach(function (edge) {
     graph.clearItemStates(edge);
   });
-  graph.paint();
-  graph.setAutoPaint(true);
 };
+
+const setAllDark = () => {
+  graph.getNodes().forEach(function (node) {
+    graph.setItemState(node, "dark", true);
+  });
+  graph.getEdges().forEach(function (edge) {
+    graph.setItemState(edge, "dark", true);
+  });
+};
+
+const setAllToBack = () => {
+  graph.getNodes().forEach(function (node) {
+    node.toBack();
+  });
+  graph.getEdges().forEach(function (edge) {
+    edge.toBack();
+  });
+  graph.getCombos().forEach(function (combo) {
+    combo.toBack();
+  });
+}
 </script>
 
 <style scoped lang="scss">
