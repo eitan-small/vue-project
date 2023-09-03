@@ -36,19 +36,19 @@ const legendItems = ref([
   { type: "image", content: "/src/assets/icons/router.svg", label: "路由器" },
   { type: "image", content: "/src/assets/icons/firewall.svg", label: "防火墙" },
   { type: "image", content: "/src/assets/icons/server.svg", label: "服务器" },
-  { type: "line", color: "#5B8FF9", thickness: 3, label: "万兆光纤链路" },
-  { type: "line", color: "#5B8FF9", thickness: 1, label: "千兆光纤链路" },
+  { type: "line", color: "#B1B3B8", thickness: 3, label: "万兆光纤链路" },
+  { type: "line", color: "#B1B3B8", thickness: 1, label: "千兆光纤链路" },
   { type: "line", color: "#FFD700", thickness: 1, label: "千兆铜缆链路" },
 ]);
 
 const edgeStyles = {
   万兆光纤链路: {
-    lineWidth: 3,
-    stroke: "#5B8FF9",
+    lineWidth: 2,
+    stroke: "#B1B3B8",
   },
   千兆光纤链路: {
     lineWidth: 1,
-    stroke: "#5B8FF9",
+    stroke: "#B1B3B8",
   },
   千兆铜缆链路: {
     lineWidth: 1,
@@ -272,7 +272,7 @@ const setAllToBack = () => {
   graph.getCombos().forEach(function (combo) {
     combo.toBack();
   });
-}
+};
 </script>
 
 <style scoped lang="scss">

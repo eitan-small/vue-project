@@ -11,7 +11,6 @@
 
 <script setup lang="ts">
 import useGraphDataStore from "@/store/modules/graphData";
-import html2canvas from "html2canvas";
 import { saveNetworkData } from "@/api/network";
 
 const graphDataStore = useGraphDataStore();
