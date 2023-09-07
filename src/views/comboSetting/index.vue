@@ -1,11 +1,18 @@
 <template>
   <div>
-    <el-button @click="addCardBox" type="primary">新增分区</el-button>
+    <el-button @click="centerDialogVisible = true" type="primary"
+      >新增分区</el-button
+    >
     <div v-for="combo in combos" :key="combo.id">
       <el-card class="box">
         <div class="text">
           <p>{{ combo.value }}</p>
-          <el-select v-model="networkDeviceMap[combo.value]" placeholder="">
+          <el-select
+            v-model="networkDeviceMap[combo.value]"
+            multiple
+            placeholder=""
+            class="selector"
+          >
             <el-option
               v-for="device in devices"
               :key="device.id"
@@ -14,7 +21,10 @@
             />
           </el-select>
           <el-button @click="addCard(combo)" type="success">添加设备</el-button>
-          <el-button @click="removeCardBox(boxIndex)" type="danger"
+          <el-button @click="saveCardBox(combo)" type="primary"
+            >保存分区</el-button
+          >
+          <el-button @click="removeCardBox(combo)" type="danger"
             >删除分区</el-button
           >
         </div>
@@ -37,35 +47,91 @@
       </el-card>
     </div>
   </div>
+
+  <el-dialog
+    v-model="centerDialogVisible"
+    title="新增分区"
+    width="30%"
+    align-center
+  >
+    <el-input v-model="input" placeholder="分区名称" />
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="centerDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="addCardBox">确认</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { getDevices, getCombos } from "@/api/network";
-
-const cardBoxes = ref([]);
-const newCardText = ref([]);
+import { getDevices, getCombos, deleteCombo, saveCombo } from "@/api/network";
+import { ElMessage } from "element-plus";
 
 const combos = ref([]);
 const devices = ref([]);
 const networkDeviceMap = ref([]);
 
+// 对话框
+const centerDialogVisible = ref(false);
+const input = ref("");
+
 const addCardBox = () => {
-  console.log("1111");
-  //   combo.devices.push(networkDeviceMap[combo.id]);
-  //   console.log(combo.devices);
+  const trimmedValue = validateInputValue(input.value);
+  if (trimmedValue) {
+    combos.value.push({ value: trimmedValue, devices: [] });
+    centerDialogVisible.value = false;
+  }
 };
 
-const removeCardBox = (boxIndex) => {
-  if (boxIndex >= 0 && boxIndex < cardBoxes.value.length) {
-    cardBoxes.value.splice(boxIndex, 1);
-    newCardText.value.splice(boxIndex, 1);
+const saveCardBox = async (combo) => {
+  try {
+    await saveCombo(combo);
+    refreshData();
+  } catch (error) {
+    ElMessage.error("保存分区失败：" + error.message);
+  }
+};
+
+const removeCardBox = async (combo) => {
+  try {
+    await deleteCombo(combo.value);
+    refreshData();
+  } catch (error) {
+    ElMessage.error("删除分区失败：" + error.message);
   }
 };
 
 const addCard = (combo) => {
-  const deviceName = networkDeviceMap.value[combo.value];
-  combo.devices.push({ deviceName: deviceName });
+  const deviceNames = networkDeviceMap.value[combo.value];
+
+  // 如果 deviceName 为空，直接返回
+  if (!deviceNames) {
+    return;
+  }
+
+  if (!combo.devices) {
+    combo.devices = [];
+  }
+
+  console.log(deviceNames);
+
+  deviceNames.forEach((deviceName) => {
+    // 检查 combo.devices 中是否已经存在相同的 deviceName
+    const exists = combo.devices.some(
+      (device) => device.deviceName === deviceName,
+    );
+
+    // 如果已经存在相同的 deviceName，直接返回
+    if (exists) {
+      return;
+    }
+
+    combo.devices.push({ deviceName: deviceName });
+  });
+
+  networkDeviceMap.value[combo.value] = [];
 };
 
 const removeCard = (combo, deviceName) => {
@@ -74,7 +140,7 @@ const removeCard = (combo, deviceName) => {
   );
 };
 
-onMounted(async () => {
+const refreshData = async () => {
   const response = await getDevices();
   if (response.status == 200) {
     devices.value = response.data;
@@ -87,6 +153,19 @@ onMounted(async () => {
   } else {
     console.log(comboResponse.message);
   }
+};
+
+const validateInputValue = (value) => {
+  const trimmedValue = value.trim();
+  if (trimmedValue === "") {
+    ElMessage.error("请输入有效值");
+    return false;
+  }
+  return trimmedValue;
+};
+
+onMounted(async () => {
+  refreshData();
 });
 </script>
 
@@ -116,5 +195,9 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.dialog-footer button:first-child {
+  margin-right: 10px;
 }
 </style>

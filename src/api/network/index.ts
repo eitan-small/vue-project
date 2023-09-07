@@ -7,6 +7,8 @@ enum API {
   GETDICTIONARYBYtYPE_URL = "/network/dictionary/getByType",
   GETDEVICES_URL = "/network/networkDevices/list",
   GETCOMBOS_URL = "/network/networkDevices/getCombos",
+  DELETECOMBO_URL = "/network/networkDevices/deleteCombo",
+  SAVECOMBO_URL = "/network/networkDevices/saveCombo",
 }
 
 // 对外暴露函数
@@ -25,3 +27,12 @@ export const getDictionaryByType = (type: string) =>
 export const getDevices = () => request.post(API.GETDEVICES_URL);
 
 export const getCombos = () => request.post(API.GETCOMBOS_URL);
+
+export const deleteCombo = (combo: string) =>
+  request.get(API.DELETECOMBO_URL, {
+    params: {
+      combo: combo,
+    },
+  });
+
+export const saveCombo = (data: any) => request.post(API.SAVECOMBO_URL, data);

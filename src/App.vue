@@ -3,16 +3,10 @@ import Menu from "@/components/Menu/index.vue";
 </script>
 
 <template>
-  <Menu />
   <div>
+    <Menu />
     <router-view></router-view>
   </div>
 </template>
 
-<style scoped lang="scss">
-div {
-  h1 {
-    color: $color;
-  }
-}
-</style>
+<style scoped></style>
