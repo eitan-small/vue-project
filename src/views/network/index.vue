@@ -32,10 +32,10 @@ const selectedData = ref();
 const selectedType = ref();
 
 const legendItems = ref([
-  { type: "image", content: "/src/assets/icons/switch.svg", label: "交换机" },
-  { type: "image", content: "/src/assets/icons/router.svg", label: "路由器" },
-  { type: "image", content: "/src/assets/icons/firewall.svg", label: "防火墙" },
-  { type: "image", content: "/src/assets/icons/server.svg", label: "服务器" },
+  { type: "image", content: "/src/assets/icons/交换机.svg", label: "交换机" },
+  { type: "image", content: "/src/assets/icons/路由器.svg", label: "路由器" },
+  { type: "image", content: "/src/assets/icons/防火墙.svg", label: "防火墙" },
+  { type: "image", content: "/src/assets/icons/服务器.svg", label: "服务器" },
   { type: "line", color: "#B1B3B8", thickness: 3, label: "万兆光纤链路" },
   { type: "line", color: "#B1B3B8", thickness: 1, label: "千兆光纤链路" },
   { type: "line", color: "#FFD700", thickness: 1, label: "千兆铜缆链路" },
