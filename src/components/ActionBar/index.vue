@@ -1,10 +1,8 @@
 <template>
   <el-button @click="saveData">
-    <SvgIcon name="save" />
     保存
   </el-button>
   <el-button @click="exportPNG">
-    <SvgIcon name="save" />
     导出
   </el-button>
 </template>
@@ -12,6 +10,7 @@
 <script setup lang="ts">
 import useGraphDataStore from "@/store/modules/graphData";
 import { saveNetworkData } from "@/api/network";
+import html2canvas from "html2canvas";
 
 const graphDataStore = useGraphDataStore();
 const saveData = () => {

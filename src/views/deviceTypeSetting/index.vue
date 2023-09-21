@@ -114,8 +114,6 @@ const refreshAddDeviceList = async (combo: string) => {
   const response = await getAddDevices(combo, "2");
   if (response.status == 200) {
     addDeviceList.value = response.data;
-  } else {
-    console.log(response.message);
   }
 };
 
@@ -125,7 +123,10 @@ const handleSelectionChange = (val) => {
 };
 
 const addDevices = async () => {
-  await addComboDevices({ deviceType: comboId, devices: multipleSelection.value });
+  await addComboDevices({
+    deviceType: comboId,
+    devices: multipleSelection.value,
+  });
   await refreshData();
   dialogVisible.value = false;
 };
@@ -164,8 +165,6 @@ const refreshData = async () => {
   const response = await getDeviceTypes();
   if (response.status == 200) {
     combosTableData.value = response.data;
-  } else {
-    console.log(response.message);
   }
 };
 

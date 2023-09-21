@@ -32,10 +32,10 @@ const selectedData = ref();
 const selectedType = ref();
 
 const legendItems = ref([
-  { type: "image", content: "/src/assets/icons/交换机.svg", label: "交换机" },
-  { type: "image", content: "/src/assets/icons/路由器.svg", label: "路由器" },
-  { type: "image", content: "/src/assets/icons/防火墙.svg", label: "防火墙" },
-  { type: "image", content: "/src/assets/icons/服务器.svg", label: "服务器" },
+  { type: "image", content: "./assets/icons/交换机.svg", label: "交换机" },
+  { type: "image", content: "./assets/icons/路由器.svg", label: "路由器" },
+  { type: "image", content: "./assets/icons/防火墙.svg", label: "防火墙" },
+  { type: "image", content: "./assets/icons/服务器.svg", label: "服务器" },
   { type: "line", color: "#B1B3B8", thickness: 3, label: "万兆光纤链路" },
   { type: "line", color: "#B1B3B8", thickness: 1, label: "千兆光纤链路" },
   { type: "line", color: "#FFD700", thickness: 1, label: "千兆铜缆链路" },
@@ -78,7 +78,9 @@ const initGraph = async () => {
     {
       afterDraw(cfg, group) {
         const size = cfg.size;
+        // @ts-ignore
         const width = size - 16;
+        // @ts-ignore
         const height = size - 16;
         // 添加图片
         const image = group.addShape("image", {
@@ -181,6 +183,7 @@ const initGraph = async () => {
   graphDataStore.graph = graph;
 
   graph.edge((edge) => {
+    // @ts-ignore
     edge.style = edgeStyles[edge.sourceData.linkType];
     return edge;
   });
@@ -204,6 +207,7 @@ const initGraphEvent = () => {
       graph.setItemState(node, "selected", !node.hasState("selected"));
       node.toFront();
       // 设置边和边连接的节点为 related
+      // @ts-ignore
       node.getEdges().forEach((edge) => {
         graph.setItemState(edge, "selected", true);
         edge.toFront();
@@ -233,7 +237,9 @@ const initGraphEvent = () => {
     setAllDark();
     graph.setItemState(event.item, "selected", true);
     // 关联的两个节点
+    // @ts-ignore
     graph.setItemState(event.item.getSource(), "related", true);
+    // @ts-ignore
     graph.setItemState(event.item.getTarget(), "related", true);
   });
 };

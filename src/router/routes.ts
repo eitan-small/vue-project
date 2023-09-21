@@ -10,11 +10,6 @@ export const staticRoute = [
     name: "comboSetting",
   },
   {
-    path: "/setting",
-    component: () => import("@/views/setting/index.vue"),
-    name: "setting",
-  },
-  {
     path: "/deviceTypeSetting",
     component: () => import("@/views/deviceTypeSetting/index.vue"),
     name: "deviceTypeSetting",

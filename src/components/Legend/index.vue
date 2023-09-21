@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 const props = defineProps({
-  items: Array,
+  items: Array<any>,
 });
 </script>
 

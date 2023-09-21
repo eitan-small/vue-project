@@ -42,8 +42,6 @@ const useGraphDataStore = defineStore("GraphData", {
 
         this.graph.data(this.data);
         this.updateNode();
-      } else {
-        console.log(response.message);
       }
     },
     updateNode() {
@@ -58,7 +56,7 @@ const useGraphDataStore = defineStore("GraphData", {
             label: ele.comboId,
           });
         }
-        ele.img = "/src/assets/icons/" + ele.sourceData.deviceType + ".svg";
+        ele.img = "./assets/icons/" + ele.sourceData.deviceType + ".svg";
       });
       this.data.combos.forEach((combo, i) => {
         const color = colorSets[i % colorSets.length];

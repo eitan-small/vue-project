@@ -38,8 +38,6 @@ onMounted(async () => {
   const response = await getDictionaryByType("combo");
   if (response.status == 200) {
     combos.value = response.data;
-  } else {
-    console.log(response.message);
   }
 });
 

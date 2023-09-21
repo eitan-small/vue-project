@@ -149,8 +149,6 @@ const refreshAddDeviceList = async (combo: string) => {
   const response = await getAddDevices(combo, "1");
   if (response.status == 200) {
     addDeviceList.value = response.data;
-  } else {
-    console.log(response.message);
   }
 };
 
@@ -172,6 +170,7 @@ const handleComboAdd = async () => {
     if (response.status == 200) {
       refreshData();
     } else {
+      // @ts-ignore
       ElMessage.error(response.message);
     }
   }
@@ -239,6 +238,7 @@ const refreshData = async () => {
   if (response.status == 200) {
     combosTableData.value = response.data;
   } else {
+    // @ts-ignore
     console.log(response.message);
   }
 };

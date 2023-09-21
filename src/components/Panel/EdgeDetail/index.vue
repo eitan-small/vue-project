@@ -44,8 +44,6 @@ onMounted(async () => {
   const response = await getDictionaryByType("link_type");
   if (response.status == 200) {
     linkTypes.value = response.data;
-  } else {
-    console.log(response.message);
   }
 });
 
